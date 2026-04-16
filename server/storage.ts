@@ -9,6 +9,25 @@ import { eq } from "drizzle-orm";
 const sqlite = new Database("data.db");
 sqlite.pragma("journal_mode = WAL");
 
+// Auto-create tables if they don't exist (handles fresh deployments)
+sqlite.exec(`
+  CREATE TABLE IF NOT EXISTS testers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    leagues TEXT NOT NULL
+  );
+  CREATE TABLE IF NOT EXISTS seeds (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    overworld_seed TEXT NOT NULL,
+    nether_seed TEXT NOT NULL,
+    seed_type TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'pending',
+    approved_leagues TEXT,
+    tester_id INTEGER,
+    notes TEXT
+  );
+`);
+
 export const db = drizzle(sqlite);
 
 export interface IStorage {
