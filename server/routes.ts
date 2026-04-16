@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertTesterSchema, insertSeedSchema, SEED_TYPES } from "@shared/schema";
+import { insertTesterSchema, insertSeedSchema, SEED_TYPES, insertWeeklySeedSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(
@@ -149,6 +149,62 @@ export async function registerRoutes(
       leagueStats,
       typeStats,
     });
+  });
+
+  // === WEEKLY SEEDS ===
+  app.get("/api/weekly-seeds", async (_req, res) => {
+    const all = await storage.getWeeklySeeds();
+    res.json(all);
+  });
+
+  app.get("/api/weekly-seeds/weeks", async (_req, res) => {
+    const weeks = await storage.getWeekLabels();
+    res.json(weeks);
+  });
+
+  app.get("/api/weekly-seeds/:weekLabel", async (req, res) => {
+    const weekLabel = decodeURIComponent(req.params.weekLabel);
+    const seeds = await storage.getWeeklySeedsByWeek(weekLabel);
+    res.json(seeds);
+  });
+
+  app.post("/api/weekly-seeds", async (req, res) => {
+    const result = insertWeeklySeedSchema.safeParse(req.body);
+    if (!result.success) {
+      return res.status(400).json({ error: result.error.message });
+    }
+    const ws = await storage.createWeeklySeed(result.data);
+    res.status(201).json(ws);
+  });
+
+  // Bulk add weekly seeds
+  app.post("/api/weekly-seeds/bulk", async (req, res) => {
+    const { entries } = req.body;
+    if (!Array.isArray(entries)) {
+      return res.status(400).json({ error: "entries must be an array" });
+    }
+    const created = [];
+    for (const entry of entries) {
+      const parsed = insertWeeklySeedSchema.safeParse(entry);
+      if (parsed.success) {
+        const ws = await storage.createWeeklySeed(parsed.data);
+        created.push(ws);
+      }
+    }
+    res.status(201).json(created);
+  });
+
+  app.patch("/api/weekly-seeds/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const ws = await storage.updateWeeklySeed(id, req.body);
+    if (!ws) return res.status(404).json({ error: "Weekly seed not found" });
+    res.json(ws);
+  });
+
+  app.delete("/api/weekly-seeds/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    await storage.deleteWeeklySeed(id);
+    res.status(204).send();
   });
 
   return httpServer;

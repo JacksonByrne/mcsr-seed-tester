@@ -36,12 +36,25 @@ export const seeds = sqliteTable("seeds", {
   notes: text("notes"),
 });
 
+// Weekly seed distribution - seeds chosen from the pool for a given week/league
+export const weeklySeed = sqliteTable("weekly_seeds", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  weekLabel: text("week_label").notNull(), // e.g. "Week 1", "Week 2"
+  league: integer("league").notNull(), // 1-6
+  seedId: integer("seed_id").notNull(), // references seeds.id
+  played: integer("played", { mode: "boolean" }).notNull().default(false),
+  comment: text("comment"),
+});
+
 // Insert schemas
 export const insertTesterSchema = createInsertSchema(testers).omit({ id: true });
 export const insertSeedSchema = createInsertSchema(seeds).omit({ id: true });
+export const insertWeeklySeedSchema = createInsertSchema(weeklySeed).omit({ id: true });
 
 // Types
 export type InsertTester = z.infer<typeof insertTesterSchema>;
 export type Tester = typeof testers.$inferSelect;
 export type InsertSeed = z.infer<typeof insertSeedSchema>;
 export type Seed = typeof seeds.$inferSelect;
+export type InsertWeeklySeed = z.infer<typeof insertWeeklySeedSchema>;
+export type WeeklySeed = typeof weeklySeed.$inferSelect;

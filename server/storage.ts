@@ -1,6 +1,7 @@
 import {
   type Tester, type InsertTester, testers,
   type Seed, type InsertSeed, seeds,
+  type WeeklySeed, type InsertWeeklySeed, weeklySeed,
 } from "@shared/schema";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import Database from "better-sqlite3";
@@ -27,6 +28,14 @@ sqlite.exec(`
     tester_id INTEGER,
     notes TEXT
   );
+  CREATE TABLE IF NOT EXISTS weekly_seeds (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    week_label TEXT NOT NULL,
+    league INTEGER NOT NULL,
+    seed_id INTEGER NOT NULL,
+    played INTEGER NOT NULL DEFAULT 0,
+    comment TEXT
+  );
 `);
 
 export const db = drizzle(sqlite);
@@ -45,6 +54,14 @@ export interface IStorage {
   createSeed(seed: InsertSeed): Promise<Seed>;
   updateSeed(id: number, seed: Partial<InsertSeed>): Promise<Seed | undefined>;
   deleteSeed(id: number): Promise<void>;
+
+  // Weekly Seeds
+  getWeeklySeeds(): Promise<WeeklySeed[]>;
+  getWeeklySeedsByWeek(weekLabel: string): Promise<WeeklySeed[]>;
+  createWeeklySeed(ws: InsertWeeklySeed): Promise<WeeklySeed>;
+  updateWeeklySeed(id: number, data: Partial<InsertWeeklySeed>): Promise<WeeklySeed | undefined>;
+  deleteWeeklySeed(id: number): Promise<void>;
+  getWeekLabels(): Promise<string[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -88,6 +105,32 @@ export class DatabaseStorage implements IStorage {
 
   async deleteSeed(id: number): Promise<void> {
     db.delete(seeds).where(eq(seeds.id, id)).run();
+  }
+
+  // Weekly Seeds
+  async getWeeklySeeds(): Promise<WeeklySeed[]> {
+    return db.select().from(weeklySeed).all();
+  }
+
+  async getWeeklySeedsByWeek(weekLabel: string): Promise<WeeklySeed[]> {
+    return db.select().from(weeklySeed).where(eq(weeklySeed.weekLabel, weekLabel)).all();
+  }
+
+  async createWeeklySeed(ws: InsertWeeklySeed): Promise<WeeklySeed> {
+    return db.insert(weeklySeed).values(ws).returning().get();
+  }
+
+  async updateWeeklySeed(id: number, data: Partial<InsertWeeklySeed>): Promise<WeeklySeed | undefined> {
+    return db.update(weeklySeed).set(data).where(eq(weeklySeed.id, id)).returning().get();
+  }
+
+  async deleteWeeklySeed(id: number): Promise<void> {
+    db.delete(weeklySeed).where(eq(weeklySeed.id, id)).run();
+  }
+
+  async getWeekLabels(): Promise<string[]> {
+    const rows = db.selectDistinct({ weekLabel: weeklySeed.weekLabel }).from(weeklySeed).all();
+    return rows.map(r => r.weekLabel);
   }
 }
 
