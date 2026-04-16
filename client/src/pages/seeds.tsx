@@ -52,13 +52,19 @@ const STATUS_BADGE: Record<string, string> = {
   rejected: "bg-red-500/15 text-red-700 dark:text-red-400 border-red-500/20",
 };
 
-const TYPE_ICON: Record<string, string> = {
-  "Village": "🏘️",
-  "Desert Temple": "🏛️",
-  "Ruined Portal": "🌀",
-  "Buried Treasure": "💎",
-  "Shipwreck": "🚢",
+const TYPE_IMAGE: Record<string, string> = {
+  "Village": "/images/village.png",
+  "Desert Temple": "/images/desert-temple.png",
+  "Ruined Portal": "/images/ruined-portal.png",
+  "Buried Treasure": "/images/buried-treasure.png",
+  "Shipwreck": "/images/shipwreck.png",
 };
+
+function TypeIcon({ type, className = "h-4 w-4" }: { type: string; className?: string }) {
+  const src = TYPE_IMAGE[type];
+  if (!src) return null;
+  return <img src={src} alt={type} className={`${className} object-contain inline-block`} />;
+}
 
 const TYPE_BADGE_COLORS: Record<string, string> = {
   "Village": "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/15",
@@ -182,7 +188,7 @@ export default function SeedsPage() {
                   <SelectContent>
                     {SEED_TYPES.map(t => (
                       <SelectItem key={t} value={t}>
-                        {TYPE_ICON[t]} {t}
+                        <TypeIcon type={t} className="h-4 w-4" /> {t}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -238,7 +244,7 @@ export default function SeedsPage() {
           <SelectContent>
             <SelectItem value="all">All Types</SelectItem>
             {SEED_TYPES.map(t => (
-              <SelectItem key={t} value={t}>{TYPE_ICON[t]} {t}</SelectItem>
+              <SelectItem key={t} value={t}><TypeIcon type={t} className="h-3.5 w-3.5" /> {t}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -274,7 +280,7 @@ export default function SeedsPage() {
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0 flex-1">
                       <Badge variant="outline" className={`text-[10px] shrink-0 ${TYPE_BADGE_COLORS[seed.seedType] || ""}`}>
-                        {TYPE_ICON[seed.seedType] || ""} {seed.seedType}
+                        <TypeIcon type={seed.seedType} className="h-3.5 w-3.5" /> {seed.seedType}
                       </Badge>
                       <div className="flex items-center gap-2 min-w-0 text-sm">
                         <span className="flex items-center gap-1 font-mono font-medium" title="Overworld seed">

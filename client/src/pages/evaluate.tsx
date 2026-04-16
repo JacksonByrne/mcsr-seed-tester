@@ -26,13 +26,19 @@ const LEAGUE_COLORS: Record<number, string> = {
   6: "bg-purple-500/15 text-purple-700 dark:text-purple-400 border-purple-500/20",
 };
 
-const TYPE_ICON: Record<string, string> = {
-  "Village": "🏘️",
-  "Desert Temple": "🏛️",
-  "Ruined Portal": "🌀",
-  "Buried Treasure": "💎",
-  "Shipwreck": "🚢",
+const TYPE_IMAGE: Record<string, string> = {
+  "Village": "/images/village.png",
+  "Desert Temple": "/images/desert-temple.png",
+  "Ruined Portal": "/images/ruined-portal.png",
+  "Buried Treasure": "/images/buried-treasure.png",
+  "Shipwreck": "/images/shipwreck.png",
 };
+
+function TypeIcon({ type, className = "h-4 w-4" }: { type: string; className?: string }) {
+  const src = TYPE_IMAGE[type];
+  if (!src) return null;
+  return <img src={src} alt={type} className={`${className} object-contain inline-block`} />;
+}
 
 const TYPE_BADGE_COLORS: Record<string, string> = {
   "Village": "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/15",
@@ -179,7 +185,7 @@ export default function EvaluatePage() {
                     Seed to Test
                   </span>
                   <Badge variant="outline" className={`text-[10px] ${TYPE_BADGE_COLORS[currentSeed.seedType] || ""}`}>
-                    {TYPE_ICON[currentSeed.seedType] || ""} {currentSeed.seedType}
+                    <TypeIcon type={currentSeed.seedType} className="h-3.5 w-3.5" /> {currentSeed.seedType}
                   </Badge>
                 </div>
                 <Badge variant="outline" className="text-[10px] bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/20">
