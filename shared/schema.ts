@@ -46,10 +46,23 @@ export const weeklySeed = sqliteTable("weekly_seeds", {
   comment: text("comment"),
 });
 
+// Audit log — records when a host uses/deletes a seed
+export const deletionLog = sqliteTable("deletion_log", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  hostName: text("host_name").notNull(),
+  league: integer("league").notNull(),
+  seedType: text("seed_type").notNull(),
+  overworldSeed: text("overworld_seed").notNull(),
+  netherSeed: text("nether_seed").notNull(),
+  notes: text("notes"),
+  deletedAt: text("deleted_at").notNull(), // ISO timestamp
+});
+
 // Insert schemas
 export const insertTesterSchema = createInsertSchema(testers).omit({ id: true });
 export const insertSeedSchema = createInsertSchema(seeds).omit({ id: true });
 export const insertWeeklySeedSchema = createInsertSchema(weeklySeed).omit({ id: true });
+export const insertDeletionLogSchema = createInsertSchema(deletionLog).omit({ id: true });
 
 // Types
 export type InsertTester = z.infer<typeof insertTesterSchema>;
@@ -58,3 +71,5 @@ export type InsertSeed = z.infer<typeof insertSeedSchema>;
 export type Seed = typeof seeds.$inferSelect;
 export type InsertWeeklySeed = z.infer<typeof insertWeeklySeedSchema>;
 export type WeeklySeed = typeof weeklySeed.$inferSelect;
+export type InsertDeletionLog = z.infer<typeof insertDeletionLogSchema>;
+export type DeletionLog = typeof deletionLog.$inferSelect;

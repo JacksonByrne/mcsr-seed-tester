@@ -2,6 +2,7 @@ import {
   type Tester, type InsertTester, testers,
   type Seed, type InsertSeed, seeds,
   type WeeklySeed, type InsertWeeklySeed, weeklySeed,
+  type DeletionLog, type InsertDeletionLog, deletionLog,
 } from "@shared/schema";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import Database from "better-sqlite3";
@@ -36,6 +37,16 @@ sqlite.exec(`
     played INTEGER NOT NULL DEFAULT 0,
     comment TEXT
   );
+  CREATE TABLE IF NOT EXISTS deletion_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    host_name TEXT NOT NULL,
+    league INTEGER NOT NULL,
+    seed_type TEXT NOT NULL,
+    overworld_seed TEXT NOT NULL,
+    nether_seed TEXT NOT NULL,
+    notes TEXT,
+    deleted_at TEXT NOT NULL
+  );
 `);
 
 export const db = drizzle(sqlite);
@@ -62,6 +73,10 @@ export interface IStorage {
   updateWeeklySeed(id: number, data: Partial<InsertWeeklySeed>): Promise<WeeklySeed | undefined>;
   deleteWeeklySeed(id: number): Promise<void>;
   getWeekLabels(): Promise<string[]>;
+
+  // Deletion Log
+  getDeletionLogs(): Promise<DeletionLog[]>;
+  createDeletionLog(entry: InsertDeletionLog): Promise<DeletionLog>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -131,6 +146,15 @@ export class DatabaseStorage implements IStorage {
   async getWeekLabels(): Promise<string[]> {
     const rows = db.selectDistinct({ weekLabel: weeklySeed.weekLabel }).from(weeklySeed).all();
     return rows.map(r => r.weekLabel);
+  }
+
+  // Deletion Log
+  async getDeletionLogs(): Promise<DeletionLog[]> {
+    return db.select().from(deletionLog).all();
+  }
+
+  async createDeletionLog(entry: InsertDeletionLog): Promise<DeletionLog> {
+    return db.insert(deletionLog).values(entry).returning().get();
   }
 }
 

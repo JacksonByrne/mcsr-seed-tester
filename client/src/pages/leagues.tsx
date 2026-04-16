@@ -75,7 +75,8 @@ export default function LeaguesPage() {
   };
 
   const deleteMutation = useMutation({
-    mutationFn: (id: number) => apiRequest("DELETE", `/api/seeds/${id}`),
+    mutationFn: (id: number) =>
+      apiRequest("DELETE", `/api/seeds/${id}?hostName=${encodeURIComponent(selectedHost?.name || "")}&league=${selectedLeague}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/seeds"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });

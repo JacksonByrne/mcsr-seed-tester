@@ -88,6 +88,23 @@ export async function registerRoutes(
 
   app.delete("/api/seeds/:id", async (req, res) => {
     const id = parseInt(req.params.id);
+    const seed = await storage.getSeed(id);
+
+    // If host/league info provided, log the deletion for audit
+    const hostName = req.query.hostName as string | undefined;
+    const league = req.query.league as string | undefined;
+    if (seed && hostName && league) {
+      await storage.createDeletionLog({
+        hostName,
+        league: parseInt(league),
+        seedType: seed.seedType,
+        overworldSeed: seed.overworldSeed,
+        netherSeed: seed.netherSeed,
+        notes: seed.notes,
+        deletedAt: new Date().toISOString(),
+      });
+    }
+
     await storage.deleteSeed(id);
     res.status(204).send();
   });
@@ -205,6 +222,12 @@ export async function registerRoutes(
     const id = parseInt(req.params.id);
     await storage.deleteWeeklySeed(id);
     res.status(204).send();
+  });
+
+  // === DELETION LOG ===
+  app.get("/api/deletion-log", async (_req, res) => {
+    const logs = await storage.getDeletionLogs();
+    res.json(logs);
   });
 
   return httpServer;
