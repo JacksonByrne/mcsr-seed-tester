@@ -9,6 +9,7 @@ import Dashboard from "@/pages/dashboard";
 import SeedsPage from "@/pages/seeds";
 import TestersPage from "@/pages/testers";
 import EvaluatePage from "@/pages/evaluate";
+import LeaguesPage from "@/pages/leagues";
 import NotFound from "@/pages/not-found";
 
 function AppRouter() {
@@ -19,6 +20,7 @@ function AppRouter() {
         <Route path="/seeds" component={SeedsPage} />
         <Route path="/testers" component={TestersPage} />
         <Route path="/evaluate" component={EvaluatePage} />
+        <Route path="/leagues" component={LeaguesPage} />
         <Route component={NotFound} />
       </Switch>
     </Layout>

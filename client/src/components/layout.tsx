@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { useState, useEffect } from "react";
-import { LayoutDashboard, Users, Sprout, TestTube, Sun, Moon } from "lucide-react";
+import { LayoutDashboard, Users, Sprout, TestTube, Crown, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const NAV_ITEMS = [
@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { path: "/seeds", label: "Seed Pool", icon: Sprout },
   { path: "/testers", label: "Testers", icon: Users },
   { path: "/evaluate", label: "Evaluate", icon: TestTube },
+  { path: "/leagues", label: "League Hosts", icon: Crown },
 ];
 
 export default function Layout({ children }: { children: React.ReactNode }) {
